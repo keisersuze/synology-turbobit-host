@@ -1,6 +1,13 @@
 # Changelog
 
-## 1.0.5 — candidate, non déployée
+## 1.0.6 — correctif de connexion
+
+- Corrige le contrôle introduit en 1.0.5 qui exigeait un objet JSON pour l’accusé de connexion. Un tableau vide est maintenant accepté uniquement sur `/auth/login`.
+- Le statut Premium reste obligatoirement vérifié sur `/user/info` ; les réponses incorrectes et les autres endpoints ne sont pas assouplis.
+- Ajoute 11 contrôles pour les accusés vides, le compte gratuit, la session refusée et les réponses malformées.
+- La validation Premium réelle dans DSM reste nécessaire après installation.
+
+## 1.0.5 — préversion avec régression de connexion confirmée
 
 - Rétablit torbobit.net et ajoute explicitement les variantes www dans INFO ; canonicalise les liens de fichiers HTTP/HTTPS sur les trois domaines.
 - Renouvelle les liens directs reconnus à partir de leur identifiant, sans réutiliser un token expiré.

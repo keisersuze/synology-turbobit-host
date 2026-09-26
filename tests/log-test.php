@@ -16,7 +16,7 @@ try {
     check(count(glob($root.'/*.log'))===1,'expired logs retained within count budget');
     check((fileperms($path)&0777)===0600,'log restricted permissions');
     check(!preg_match('/private-document|private-path|fixture-password|fixture@example/',$body),'written log hides personal data');
-    check(preg_match('/\[[0-9a-f]{12}\] MODULE VERSION: 1.0.5/',$body)===1,'execution identifier');
+    check(preg_match('/\[[0-9a-f]{12}\] MODULE VERSION: 1.0.6/',$body)===1,'execution identifier');
     file_put_contents($path,str_repeat('x',2097153));
     $h->emit('RESULT','DOWNLOAD_READY');clearstatcache(true,$path);
     check(filesize($path)<1024 && strpos(file_get_contents($path),'DOWNLOAD_READY')!==false,'oversized log rotated under lock');

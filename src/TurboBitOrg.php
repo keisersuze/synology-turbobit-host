@@ -1,5 +1,5 @@
 <?php
-/* TurboBitOrg 1.0.5. Original module: Mathieu Vedie, 2025.
+/* TurboBitOrg 1.0.6. Original module: Mathieu Vedie, 2025.
  * Synology Download Station host module; PHP 5.6+ syntax, cURL required; DOM used by the legacy HTML fallback.
  * No credentials or session cookies are embedded in this file.
  */
@@ -51,14 +51,14 @@ class SynoFileHostingTurboBit {
                 if (strtolower($p['host']) === 'trbt.cc' || strtolower($p['host']) === 'www.trbt.cc') $this->shortDomain = 'trbt.cc';
             }
         }
-        $this->log('MODULE VERSION', '1.0.5');
+        $this->log('MODULE VERSION', '1.0.6');
         $this->log('INPUT URL', (string)$Url);
         $this->log('NORMALIZED URL', $this->url);
     }
 
     private function userAgent() {
         // Match the downloader when Synology exposes its User-Agent.
-        return defined('DOWNLOAD_STATION_USER_AGENT') ? DOWNLOAD_STATION_USER_AGENT : 'Mozilla/5.0 (compatible; Synology Download Station; TurboBitOrg/1.0.5)';
+        return defined('DOWNLOAD_STATION_USER_AGENT') ? DOWNLOAD_STATION_USER_AGENT : 'Mozilla/5.0 (compatible; Synology Download Station; TurboBitOrg/1.0.6)';
     }
 
     private function inputHost($host) {
@@ -285,7 +285,10 @@ class SynoFileHostingTurboBit {
             $this->fail('API_' . $name);
         }
         $this->ok($r);
-        if (!is_array($body) || substr(ltrim($r['body']), 0, 1) !== '{') $this->fail('API_NOT_JSON_OBJECT');
+        // Login is an acknowledgement, not an account document: an empty JSON
+        // array was accepted by 1.0.4. Only /user/info proves the account state.
+        $emptyLoginAck = $path === '/auth/login' && $body === array();
+        if (!is_array($body) || (!$emptyLoginAck && substr(ltrim($r['body']), 0, 1) !== '{')) $this->fail('API_NOT_JSON_OBJECT');
         if (!empty($body['needCaptcha']) || (isset($body['data']) && is_array($body['data']) && !empty($body['data']['needCaptcha']))) $this->fail('CAPTCHA_REQUIRED');
         return $body;
     }

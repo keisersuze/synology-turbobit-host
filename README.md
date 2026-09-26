@@ -2,7 +2,9 @@
 
 Module `.host` pour télécharger des fichiers avec un compte **Turbobit Premium** depuis Synology Download Station.
 
-**Version de cette branche : 1.0.5 candidate.** Les corrections de compatibilité sont implémentées et testées sans compte réel. La 1.0.4 reste la référence ayant réussi un transfert Premium dans Download Station. La 1.0.5 doit encore passer cette validation avant diffusion comme version stable. Voir le [bilan de validation](docs/VALIDATION-1.0.5.md) et le [changelog](CHANGELOG.md).
+**Version de cette branche : 1.0.6 candidate.** Les corrections de compatibilité sont implémentées et testées sans compte réel. La 1.0.4 reste la référence ayant réussi un transfert Premium dans Download Station. La 1.0.6 doit encore passer cette validation avant diffusion comme version stable. Voir le [bilan de validation](docs/VALIDATION-1.0.5.md) et le [changelog](CHANGELOG.md).
+
+La préversion 1.0.5-rc.1 présente une régression de validation du login (HTTP 200 suivi de `API_NOT_JSON_OBJECT`). La 1.0.6 accepte l’accusé JSON vide du login et conserve la vérification obligatoire du compte via `/user/info`. Voir le changelog.
 
 ## Fonctionnement
 
@@ -20,7 +22,7 @@ Prérequis de construction : Python 3. Aucun accès réseau ni compte Turbobit r
 python3 scripts/build.py
 ```
 
-L’archive est créée dans `dist/TurboBitOrg(1.0.5).host`, avec son empreinte SHA-256.
+L’archive est créée dans `dist/TurboBitOrg(1.0.6).host`, avec son empreinte SHA-256.
 
 1. Dans Download Station → Paramètres → Hébergement de fichiers, ajouter cette archive.
 2. Vérifier la version affichée et activer le module. Éviter plusieurs modules Turbobit actifs pour les mêmes domaines.
@@ -85,7 +87,7 @@ python3 scripts/test_transport.py
 python3 tests/tools_test.py
 ```
 
-Couverture : 107 contrôles fonctionnels simulés, 5 contrôles réels des logs, 10 contrôles de transport HTTP local et 2 tests des outils. Certains scripts relancent la suite fonctionnelle en préalable ; ne pas additionner ces répétitions.
+Couverture : 118 contrôles fonctionnels simulés, 5 contrôles réels des logs, 10 contrôles de transport HTTP local et 2 tests des outils. Certains scripts relancent la suite fonctionnelle en préalable ; ne pas additionner ces répétitions.
 
 Le serveur écoute uniquement sur 127.0.0.1, utilise des cookies fictifs et sert un fichier de référence dont l’empreinte est vérifiée. Aucun compte Turbobit, fichier réel ou accès SSH n’est requis. La CI n’embarque aucun secret.
 

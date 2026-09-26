@@ -98,4 +98,18 @@ check($h->scrub('LOCATION HEADER','/secret/movie.mkv?token=secret')==='[REDACTED
 check($h->scrub('FILENAME','personal-file.txt')==='[REDACTED]','filename masked');
 check(strpos($h->scrub('ERROR','fixture-password fixture@example.invalid'),'fixture')===false,'credentials masked');
 check($h->scrub('CURL ERROR','CURL_60')==='CURL_60','curl diagnostics not mistaken for URL labels');
+foreach (array('[]', '[ ]', '{}') as $ack) {
+    $h=host();$h->queue=apiQueue();$h->queue[1]=response($ack);
+    check($h->Verify(true)===USER_IS_PREMIUM && count($h->seen)===3,'login acknowledgement followed by premium verification');
+}
+$h=host();$h->queue=apiQueue(false);$h->queue[1]=response('[]');
+check($h->Verify(true)===USER_IS_FREE,'empty login acknowledgement does not imply premium');
+$h=host();$h->queue=array(response('<div id="app"></div>'),response('[]'),response('{"message":"Unauthenticated."}',401));
+check($h->Verify(true)===LOGIN_FAIL,'empty acknowledgement followed by rejected session fails');
+$h=host();$h->queue=array(response('<div id="app"></div>'),response('[]'),response('[]'));
+check($h->Verify(true)===LOGIN_FAIL && $h->logs['ERROR']==='API_NOT_JSON_OBJECT','account endpoint still requires object');
+foreach (array('null','true','', '<html>error</html>', '["unexpected"]') as $ack) {
+    $h=host();$h->queue=array(response('<div id="app"></div>'),response($ack));
+    check($h->Verify(true)===LOGIN_FAIL,'malformed acknowledgement still fails');
+}
 echo 'PASS: '.$checks." checks\n";

@@ -2,7 +2,7 @@
   "name": "TurboBitOrg",
   "hostprefix": "turbobit.net,www.turbobit.net,trbt.cc,www.trbt.cc,torbobit.net,www.torbobit.net",
   "displayname": "turbobit(mvedie)",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "authentication": "yes",
   "module": "TurboBitOrg.php",
   "class": "SynoFileHostingTurboBit",
