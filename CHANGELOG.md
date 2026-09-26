@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.7 — candidats de téléchargement indépendants
+
+- Un lien alternatif non HTTP ou invalide ne fait plus rejeter les autres liens valides fournis pour le fichier.
+- Les candidats rejetés ne sont jamais demandés ni journalisés en clair ; une catégorie de rejet est ajoutée au diagnostic.
+- Conserve le correctif de connexion 1.0.6 et ajoute dix contrôles de régression.
+- Téléchargement réel en cours de validation avant publication.
+
 ## 1.0.6 — correctif de connexion
 
 - Corrige le contrôle introduit en 1.0.5 qui exigeait un objet JSON pour l’accusé de connexion. Un tableau vide est maintenant accepté uniquement sur `/auth/login`.

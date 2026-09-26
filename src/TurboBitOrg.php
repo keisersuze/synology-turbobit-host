@@ -1,5 +1,5 @@
 <?php
-/* TurboBitOrg 1.0.6. Original module: Mathieu Vedie, 2025.
+/* TurboBitOrg 1.0.7. Original module: Mathieu Vedie, 2025.
  * Synology Download Station host module; PHP 5.6+ syntax, cURL required; DOM used by the legacy HTML fallback.
  * No credentials or session cookies are embedded in this file.
  */
@@ -51,14 +51,14 @@ class SynoFileHostingTurboBit {
                 if (strtolower($p['host']) === 'trbt.cc' || strtolower($p['host']) === 'www.trbt.cc') $this->shortDomain = 'trbt.cc';
             }
         }
-        $this->log('MODULE VERSION', '1.0.6');
+        $this->log('MODULE VERSION', '1.0.7');
         $this->log('INPUT URL', (string)$Url);
         $this->log('NORMALIZED URL', $this->url);
     }
 
     private function userAgent() {
         // Match the downloader when Synology exposes its User-Agent.
-        return defined('DOWNLOAD_STATION_USER_AGENT') ? DOWNLOAD_STATION_USER_AGENT : 'Mozilla/5.0 (compatible; Synology Download Station; TurboBitOrg/1.0.6)';
+        return defined('DOWNLOAD_STATION_USER_AGENT') ? DOWNLOAD_STATION_USER_AGENT : 'Mozilla/5.0 (compatible; Synology Download Station; TurboBitOrg/1.0.7)';
     }
 
     private function inputHost($host) {
@@ -369,7 +369,17 @@ class SynoFileHostingTurboBit {
             // At most three supplied candidates, sequentially, for this file only.
             foreach ($info['downloadUrls'] as $candidate) {
                 if (!is_string($candidate) || trim($candidate) === '') continue;
-                $link = $this->absoluteUrl(self::WEB . '/', $candidate);
+                try {
+                    $link = $this->absoluteUrl(self::WEB . '/', $candidate);
+                } catch (TurboBitOrgException $e) {
+                    if ($e->getMessage() !== 'INVALID_HTTP_URL') throw $e;
+                    // A non-HTTP alternative must not discard another usable
+                    // URL for the same file. Never log the signed candidate.
+                    $scheme = parse_url(trim($candidate), PHP_URL_SCHEME);
+                    $kind = in_array(strtolower((string)$scheme), array('ftp', 'http', 'https'), true) ? strtoupper($scheme) : 'OTHER';
+                    $this->log('CDN CANDIDATE SKIPPED', $kind . (preg_match('/[\x00-\x20\x7f]/', trim($candidate)) ? '_WHITESPACE_OR_CONTROL' : '_INVALID'));
+                    continue;
+                }
                 if (!in_array($link, $links, true)) $links[] = $link;
                 if (count($links) >= 3) break;
             }
