@@ -1,0 +1,12 @@
+/dist/
+/work/
+*.log
+*.cookie
+*.cookies
+cookies.txt
+*.pem
+*.key
+.env
+.env.*
+.DS_Store
+__pycache__/
