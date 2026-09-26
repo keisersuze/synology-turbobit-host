@@ -116,7 +116,7 @@ foreach (array(
     array('https://cdn.example.invalid/valid','ftp://cdn.example.invalid/alternative'),
     array('ftp://cdn.example.invalid/alternative','https://cdn.example.invalid/valid'),
     array('https://user:secret@cdn.example.invalid/alternative','https://cdn.example.invalid/valid'),
-    array('https://cdn.example.invalid/invalid path','https://cdn.example.invalid/valid')
+    array("https://cdn.example.invalid/invalid\tpath",'https://cdn.example.invalid/valid')
 ) as $links) {
     $h=host();$h->queue=apiQueue();$h->queue[]=fileInfo($links);$h->queue[]=binaryResponse();
     $r=$h->GetDownloadInfo();
@@ -125,4 +125,27 @@ foreach (array(
 }
 $h=host();$h->queue=apiQueue();$h->queue[]=fileInfo(array('ftp://cdn.example.invalid/alternative','javascript:invalid'));
 expectFailure($h,'PREMIUM_LINK_NOT_FOUND');check(count($h->seen)===4,'all invalid candidates fail without network requests');
+foreach (array(
+    'https://cdn.example.invalid/folder name/file name.zip?sig=a+b%2Fc&x=%20' => 'https://cdn.example.invalid/folder%20name/file%20name.zip?sig=a+b%2Fc&x=%20',
+    'https://cdn.example.invalid/file%20name.zip?sig=a%2fb' => 'https://cdn.example.invalid/file%20name.zip?sig=a%2fb',
+    'https://cdn.example.invalid/file name.zip' => 'https://cdn.example.invalid/file%20name.zip'
+) as $raw => $expected) {
+    $h=host();$h->queue=apiQueue();$h->queue[]=fileInfo(array($raw));$h->queue[]=binaryResponse();
+    $r=$h->GetDownloadInfo();
+    check(isset($r[DOWNLOAD_URL]) && $r[DOWNLOAD_URL]===$expected,'API path spaces encoded without modifying signed query');
+    check($h->seen[4][0]===$expected,'encoded URL used for CDN probe');
+}
+foreach (array(
+    "https://cdn.example.invalid/file\r\nX-Header:value",
+    "https://cdn.example.invalid/file\tname",
+    "https://cdn.example.invalid/file\x00name",
+    "https://cdn.example.invalid/file\x7fname",
+    'https://cdn .example.invalid/file name',
+    'https://cdn.example.invalid/file name?sig=raw space',
+    'https://user:secret@cdn.example.invalid/file name'
+) as $raw) {
+    $h=host();$h->queue=apiQueue();$h->queue[]=fileInfo(array($raw));
+    expectFailure($h,'PREMIUM_LINK_NOT_FOUND');
+    check(count($h->seen)===4,'unsafe API candidate never requested');
+}
 echo 'PASS: '.$checks." checks\n";

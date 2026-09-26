@@ -1,5 +1,5 @@
 <?php
-/* TurboBitOrg 1.0.7. Original module: Mathieu Vedie, 2025.
+/* TurboBitOrg 1.0.8. Original module: Mathieu Vedie, 2025.
  * Synology Download Station host module; PHP 5.6+ syntax, cURL required; DOM used by the legacy HTML fallback.
  * No credentials or session cookies are embedded in this file.
  */
@@ -51,14 +51,14 @@ class SynoFileHostingTurboBit {
                 if (strtolower($p['host']) === 'trbt.cc' || strtolower($p['host']) === 'www.trbt.cc') $this->shortDomain = 'trbt.cc';
             }
         }
-        $this->log('MODULE VERSION', '1.0.7');
+        $this->log('MODULE VERSION', '1.0.8');
         $this->log('INPUT URL', (string)$Url);
         $this->log('NORMALIZED URL', $this->url);
     }
 
     private function userAgent() {
         // Match the downloader when Synology exposes its User-Agent.
-        return defined('DOWNLOAD_STATION_USER_AGENT') ? DOWNLOAD_STATION_USER_AGENT : 'Mozilla/5.0 (compatible; Synology Download Station; TurboBitOrg/1.0.7)';
+        return defined('DOWNLOAD_STATION_USER_AGENT') ? DOWNLOAD_STATION_USER_AGENT : 'Mozilla/5.0 (compatible; Synology Download Station; TurboBitOrg/1.0.8)';
     }
 
     private function inputHost($host) {
@@ -351,6 +351,21 @@ class SynoFileHostingTurboBit {
         return null;
     }
 
+    private function apiDownloadUrl($candidate) {
+        // API file paths can contain literal spaces. Encode only that component:
+        // preserve signed queries, existing percent escapes and the authority.
+        // Reject controls before parse_url (which can silently replace them).
+        if (preg_match('/[\x00-\x1f\x7f]/', $candidate)) $this->fail('INVALID_HTTP_URL');
+        if (preg_match('~^(https?://[^/?#]+)([^?#]*)(.*)$~isD', $candidate, $parts)) {
+            if (strpos($parts[2], ' ') !== false) {
+                $candidate = $parts[1] . str_replace(' ', '%20', $parts[2]) . $parts[3];
+                $this->log('CDN PATH ENCODED', 'SPACE');
+            }
+            $this->validateUrl($candidate);
+        }
+        return $this->absoluteUrl(self::WEB . '/', $candidate);
+    }
+
     private function downloadLinks() {
         $this->filePage = $this->url;
         $this->log('FILE PAGE URL', $this->url);
@@ -370,7 +385,7 @@ class SynoFileHostingTurboBit {
             foreach ($info['downloadUrls'] as $candidate) {
                 if (!is_string($candidate) || trim($candidate) === '') continue;
                 try {
-                    $link = $this->absoluteUrl(self::WEB . '/', $candidate);
+                    $link = $this->apiDownloadUrl($candidate);
                 } catch (TurboBitOrgException $e) {
                     if ($e->getMessage() !== 'INVALID_HTTP_URL') throw $e;
                     // A non-HTTP alternative must not discard another usable

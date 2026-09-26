@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.8 — espaces dans les chemins CDN
+
+- Encode les espaces littéraux du chemin des liens HTTP(S) absolus fournis par l’API en `%20`, sans réencoder les séquences existantes ni modifier les paramètres signés.
+- Refuse toujours les caractères de contrôle, les identifiants dans l’URL et les espaces dans l’autorité ou la requête.
+- Ajoute des régressions sur les noms avec espaces et la préservation des signatures. Validation réelle du transfert encore requise.
+
 ## 1.0.7 — candidats de téléchargement indépendants
 
 - Un lien alternatif non HTTP ou invalide ne fait plus rejeter les autres liens valides fournis pour le fichier.
