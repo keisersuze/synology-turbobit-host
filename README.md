@@ -2,11 +2,11 @@
 
 Module `.host` pour télécharger des fichiers avec un compte **Turbobit Premium** depuis Synology Download Station.
 
-**Version de cette branche : 1.0.8 candidate.** Les corrections de compatibilité sont implémentées et testées sans compte réel. La 1.0.4 reste la référence ayant réussi un transfert Premium dans Download Station. La 1.0.8 doit encore passer cette validation avant diffusion comme version stable. Voir le [bilan de validation](docs/VALIDATION-1.0.5.md) et le [changelog](CHANGELOG.md).
+**Version 1.0.8 : téléchargement Premium complet confirmé par l’utilisateur sur le NAS testé.**
 
-La préversion 1.0.5-rc.1 présente une régression de validation du login (HTTP 200 suivi de `API_NOT_JSON_OBJECT`). La 1.0.6 accepte l’accusé JSON vide du login et conserve la vérification obligatoire du compte via `/user/info`. Voir le changelog.
+[Télécharger TurboBitOrg.1.0.8.host](https://github.com/keisersuze/synology-turbobit-host/releases/download/v1.0.8/TurboBitOrg.1.0.8.host) · [Notes de version et empreinte SHA-256](https://github.com/keisersuze/synology-turbobit-host/releases/tag/v1.0.8)
 
-La 1.0.8 conserve la connexion Premium vérifiée de la 1.0.6 et encode les espaces des chemins CDN sans modifier les signatures. Le téléchargement réel est en cours de validation.
+Cette version corrige la réponse vide du login, conserve la vérification du statut Premium et encode les espaces des chemins CDN sans modifier les paramètres signés. Elle remplace les préversions 1.0.5 et 1.0.6. Voir le [bilan de validation](docs/VALIDATION-1.0.8.md) et le [changelog](CHANGELOG.md).
 
 ## Fonctionnement
 
@@ -67,11 +67,11 @@ Ce script n’est pas inclus dans le `.host` et ne s’exécute jamais automatiq
 
 ## Compatibilité et limites
 
-- 1.0.4 : transfert Premium réel sur DSM 7.4.1-90080, Download Station 4.1.2-5012, x86_64.
+- 1.0.8 : transfert Premium complet confirmé par l’utilisateur sur DSM 7.4.1-90080, Download Station 4.1.2-5012, x86_64, PHP 8.1.32.
 - 1.0.5 : tests simulés et journaux exécutés sur le NAS avec PHP 8.1.32 ; tests locaux avec PHP 8.5. Aucun remplacement du module installé effectué pendant cette validation.
 - Une matrice CI vérifie PHP 5.6, 7.4, 8.1 et 8.5. Elle ne remplace pas les essais DSM, TLS et architectures ARM ; résultats précis dans le bilan.
 - Les liens sans `.html` et les liens directs sans identifiant reconnu restent refusés.
-- Téléchargement parallèle d’un même fichier désactivé ; pause/reprise et plusieurs vraies tâches DSM encore à valider.
+- Téléchargement parallèle d’un même fichier désactivé ; pause/reprise complète et compatibilité sur d’autres NAS encore à valider. Deux tâches simultanées ont été observées en transfert.
 - CAPTCHA interactif non résolu. API privée du site susceptible de changer. Pas de boucle de login ni de relance automatique sur quota ou HTTP 429.
 - Jusqu’à trois liens fournis par l’API pour le même fichier peuvent être essayés séquentiellement après une panne de transport/CDN. Un contenu invalide ou une limitation de débit interrompt la résolution.
 - Les fichiers texte/HTML/JSON/XML ou sans type nécessitent une taille cohérente avec les métadonnées API pour éviter de prendre une page d’erreur pour le fichier. Une réponse ambiguë peut être refusée ; le repli HTML seul ne dispose pas de ces métadonnées.

@@ -4,7 +4,7 @@
 
 - Encode les espaces littéraux du chemin des liens HTTP(S) absolus fournis par l’API en `%20`, sans réencoder les séquences existantes ni modifier les paramètres signés.
 - Refuse toujours les caractères de contrôle, les identifiants dans l’URL et les espaces dans l’autorité ou la requête.
-- Ajoute des régressions sur les noms avec espaces et la préservation des signatures. Validation réelle du transfert encore requise.
+- Ajoute des régressions sur les noms avec espaces et la préservation des signatures. Téléchargement complet confirmé par l’utilisateur sur le NAS testé ; détails dans `docs/VALIDATION-1.0.8.md`.
 
 ## 1.0.7 — candidats de téléchargement indépendants
 
