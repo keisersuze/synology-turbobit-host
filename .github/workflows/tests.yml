@@ -1,0 +1,39 @@
+name: Compatibility tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['5.6', '7.4', '8.1', '8.5']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, dom
+          coverage: none
+      - name: PHP syntax and regression tests
+        run: |
+          php -l src/TurboBitOrg.php
+          php tests/log-test.php
+      - name: Loopback transport and tools
+        run: |
+          python3 scripts/test_transport.py
+          python3 tests/tools_test.py
+      - name: Reproducible package
+        run: |
+          python3 scripts/build.py
+          cp dist/*.sha256 /tmp/first.sha256
+          python3 scripts/build.py
+          cmp /tmp/first.sha256 dist/*.sha256

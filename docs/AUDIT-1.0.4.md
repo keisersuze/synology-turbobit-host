@@ -1,5 +1,7 @@
 # Audit de compatibilité — TurboBitOrg 1.0.4
 
+Document historique : voir [la mise en œuvre 1.0.5](VALIDATION-1.0.5.md) pour le statut actuel.
+
 Date : 26 septembre 2026. Statut : proposition pour validation, aucun correctif appliqué dans cet audit. Ni le module installé ni son archive n’ont été modifiés.
 
 ## Conclusion
